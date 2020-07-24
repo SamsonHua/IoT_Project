@@ -12,11 +12,14 @@ WebSocketsClient webSocket;
 WiFiClient client;
 
 //Wifi Credentials
-#define APIKey "548a84d9-f2dd-4fbc-961c-cebae4d7ccf1"
-#define SSID "SHAW-43E2A0"
-#define Password "2511810D2876"
+#define APIKey "XXX"
+#define SSID "XXX"
+#define Password "XXX"
 
+//Digital LED Pin
 #define LED_PIN D1
+
+
 #define HEARTBEAT_INTERVAL 300000
 
 uint64_t heartbeatTimestamp = 0;
