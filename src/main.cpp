@@ -5,20 +5,28 @@
 #include <ArduinoJson.h>
 #include <WebSocketsClient.h>
 #include <StreamString.h>
+#include <IRremoteESP8266.h>
+#include <IRsend.h>
 
 //Creating Wifi Related Objects
 ESP8266WiFiMulti WiFiMulti;
 WebSocketsClient webSocket;
 WiFiClient client;
 
+//Creating IR Objects
+IRsend transmitter(D2);
+
 //Wifi Credentials
-#define APIKey "XXX"
-#define SSID "XXX"
-#define Password "XXX"
+#define APIKey "548a84d9-f2dd-4fbc-961c-cebae4d7ccf1"
+#define SSID "SHAW-43E2A0"
+#define Password "2511810D2876"
 
 //Digital LED Pin
 #define LED_PIN D1
+#define IR_LED D2
 
+//Define codes
+#define On_Code 0x8F330CF //Put your Hexadecimal codes in here, use 0x to indicate hexadecimal
 
 #define HEARTBEAT_INTERVAL 300000
 
@@ -36,6 +44,7 @@ void turnOn(String deviceId) {
   {  
     Serial.print("Turning on LED");
     digitalWrite(LED_PIN,HIGH);
+    transmitter.sendNEC(On_Code, 32);
   } 
   else {
     Serial.print("Error");  
@@ -46,6 +55,7 @@ void turnOff(String deviceId) {
    if (deviceId == "5f1b37dead7a48327f3766c5") // Device ID of first device
    {  
      Serial.print("Turning off LED");
+     transmitter.sendNEC(On_Code, 32);
      digitalWrite(LED_PIN,LOW);
    }
   else {
@@ -111,10 +121,11 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 void setup() {
   //Set up serial communication
   Serial.begin(115200);
-
+  transmitter.begin();
 
   //Declartion of Pinmodes
   pinMode(LED_PIN, OUTPUT);
+  pinMode(IR_LED, OUTPUT);
 
   //Constructors
   WiFiMulti.addAP(SSID,Password);
@@ -122,7 +133,9 @@ void setup() {
   Serial.print(SSID);
 
   while(WiFiMulti.run() != WL_CONNECTED) {
+    digitalWrite(LED_PIN, LOW);
     delay(500);
+    digitalWrite(LED_PIN, HIGH);
     Serial.print(" \n Connecting....");
   }
 
@@ -136,6 +149,7 @@ void setup() {
   //Give info message once connected:
 
   if(WiFiMulti.run() == WL_CONNECTED) {
+    digitalWrite(LED_PIN, HIGH);
     Serial.print("\n Connected to WiFi");
     Serial.print("\n IP address: ");
     Serial.println(WiFi.localIP());
