@@ -1,3 +1,6 @@
+//Assembled by Samson Hua
+//Example code was used from the Sinric library, as well as the IR remote library
+
 //Import required libraries
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
@@ -13,20 +16,20 @@ ESP8266WiFiMulti WiFiMulti;
 WebSocketsClient webSocket;
 WiFiClient client;
 
-//Creating IR Objects
-IRsend transmitter(D2);
-
 //Wifi Credentials
-#define APIKey "548a84d9-f2dd-4fbc-961c-cebae4d7ccf1"
-#define SSID "SHAW-43E2A0"
-#define Password "2511810D2876"
+#define APIKey "API_KEY" //This is from the Sinric
+#define SSID "NETWORK_SSID" //This is your network name
+#define Password "NETWORK_PASSWORD" //This is your network password
 
 //Digital LED Pin
-#define LED_PIN D1
-#define IR_LED D2
+#define LED_PIN D1 //Optional Status LED
+#define IR_LED D2 //Have IR LED on Pin D2, feel free to change this
+
+//Creating IR transmitter object
+IRsend transmitter(IR_LED);
 
 //Define codes
-#define On_Code 0x8F330CF //Put your Hexadecimal codes in here, use 0x to indicate hexadecimal
+#define On_Code 0x8F330CF //Put your Hexadecimal codes in here for the IR device you want to trigger, use 0x to indicate hexadecimal
 
 #define HEARTBEAT_INTERVAL 300000
 
@@ -39,6 +42,8 @@ void setPowerStateOnServer(String deviceId, String value);
 
 void setTargetTemperatureOnServer(String deviceId, String value, String scale);
 
+
+//This method is when the device is turned on
 void turnOn(String deviceId) {
   if (deviceId == "5f1b37dead7a48327f3766c5") // Device ID of first device
   {  
@@ -51,6 +56,8 @@ void turnOn(String deviceId) {
   }     
 }
 
+
+//This method is when the device is turned off
 void turnOff(String deviceId) {
    if (deviceId == "5f1b37dead7a48327f3766c5") // Device ID of first device
    {  
@@ -157,13 +164,12 @@ void setup() {
 
   //Connect to Sinric
   webSocket.begin("iot.sinric.com", 80, "/");
-
   webSocket.onEvent(webSocketEvent);
   webSocket.setAuthorization("apikey", APIKey);
 
   webSocket.setReconnectInterval(5000); 
 
-  Serial.print("\n Sinric Connected");
+  Serial.print("\n Connected to Sinric");
   
 }
 
